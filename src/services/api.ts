@@ -1,5 +1,6 @@
 // const BASE_URL = 'https://7cvccltb-3111.inc1.devtunnels.ms/admin';
-const BASE_URL = 'https://proftkaro-backendpapi.vercel.app/admin';
+// const BASE_URL = 'https://proftkaro-backendpapi.vercel.app/admin';
+const BASE_URL = 'https://apitask.seotube.in/admin';
 // const BASE_URL = 'https://apiprofit.seotube.in/admin';
 // neww
 // const BASE_URL = 'http://localhost:3111/admin';
