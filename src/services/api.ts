@@ -296,10 +296,54 @@ export const getDailyBonusSettings = async (): Promise<DailyBonusSettingsRespons
 };
 
 // Withdrawal Request Interfaces
+
+export interface EarningSourceBreakdown {
+  count: number;
+  coins: number;
+}
+
+export interface EarningBreakdown {
+  currentCoins: number;
+  currentWalletBalance: number;
+  totalEarnedCoins: number;
+  redeemedCoins: number;
+  convertedAmount: number;
+  totalWithdrawn: number;
+  isVerified: boolean;
+  verifiedAt?: string | null;
+  sources: {
+    taskCompletion: EarningSourceBreakdown;
+    referral: EarningSourceBreakdown;
+    offerwall: EarningSourceBreakdown;
+    scratchCard: EarningSourceBreakdown;
+    spinWheel: EarningSourceBreakdown;
+    dailyBonus: EarningSourceBreakdown;
+    captcha: EarningSourceBreakdown;
+  };
+  withdrawalsSummary: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
+  recentTransactions: Array<{
+    id: string;
+    type: 'Credit' | 'Debit';
+    source: string;
+    coins: number;
+    balanceAfter: number;
+    description: string;
+    date: string;
+  }>;
+}
+
 export interface WithdrawalRequest {
   requestId: string;
   userId: string;
+  userName?: string;
   userMobileNumber: string;
+  userReferCode?: string;
+  userSignupTime?: string | null;
   userDeviceId: string;
   amount: number;
   paymentMethod: 'UPI' | 'BankTransfer';
@@ -309,6 +353,13 @@ export interface WithdrawalRequest {
   bankIFSC?: string | null;
   bankName?: string | null;
   accountHolderName?: string | null;
+  qrCodeImage?: string | null;
+  paymentProof?: string | null;
+  isVerified?: boolean;
+  verifiedAt?: string | null;
+  userCoins?: number;
+  userWalletBalance?: number;
+  earningBreakdown?: EarningBreakdown | null;
   status: 'Pending' | 'Approved' | 'Rejected';
   adminNotes?: string | null;
   createdAt: string;
@@ -989,6 +1040,9 @@ export interface TaskControl {
   TaskType?: TaskControlType;
   taskType?: TaskControlType;
   IsActive?: boolean;
+  MinRequiredBuildNumber?: number;
+  LatestVersion?: string;
+  ForceUpdate?: boolean;
   AdsEnabled?: boolean;
   DailyLimit?: number | null;
   CoinsPerTask?: number | null;

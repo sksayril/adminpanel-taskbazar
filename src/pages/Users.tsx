@@ -416,7 +416,14 @@ const Users = () => {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{user.mobileNumber}</div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+       <span className="text-sm font-medium text-gray-900">{user.mobileNumber}</span>
+       {user.isVerified ? (
+         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Verified</span>
+       ) : (
+         <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Unverified</span>
+       )}
+     </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-semibold text-indigo-600">{user.referCode}</div>
@@ -652,6 +659,149 @@ const Users = () => {
                     </div>
                   </div>
                 </div>
+
+                
+                {/* Complete Earning Breakdown & Sources */}
+                {userDetails.earningBreakdown && (
+                  <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b pb-3">
+                      <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <TrendingUp className="text-indigo-600" size={20} />
+                        Complete Earning History & Sources
+                      </h4>
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        Verified Ledger
+                      </span>
+                    </div>
+
+                    {/* Summary Metric Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-200">
+                        <p className="text-xs font-semibold text-amber-700 uppercase">Total Earned Coins</p>
+                        <p className="text-xl font-extrabold text-amber-900 mt-1">
+                          🪙 {userDetails.earningBreakdown.totalEarnedCoins.toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                      <div className="bg-indigo-50 p-3.5 rounded-xl border border-indigo-200">
+                        <p className="text-xs font-semibold text-indigo-700 uppercase">Redeemed Coins</p>
+                        <p className="text-xl font-extrabold text-indigo-900 mt-1">
+                          🔄 {userDetails.earningBreakdown.redeemedCoins.toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                      <div className="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200">
+                        <p className="text-xs font-semibold text-emerald-700 uppercase">Current Coins Balance</p>
+                        <p className="text-xl font-extrabold text-emerald-900 mt-1">
+                          💰 {userDetails.earningBreakdown.currentCoins.toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                      <div className="bg-green-50 p-3.5 rounded-xl border border-green-200">
+                        <p className="text-xs font-semibold text-green-700 uppercase">Current Wallet Balance</p>
+                        <p className="text-xl font-extrabold text-green-900 mt-1">
+                          ₹{userDetails.earningBreakdown.currentWalletBalance.toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Source Breakdown Cards */}
+                    <div>
+                      <h5 className="text-sm font-semibold text-gray-700 mb-2">Coins Earned By Source:</h5>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">📱 Task Completion</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.taskCompletion.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.taskCompletion.count} approved</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">👥 Referral Bonus</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.referral.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.referral.count} referrals</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">🌐 Offerwall</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.offerwall.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.offerwall.count} callbacks</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">🎟️ Scratch Card</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.scratchCard.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.scratchCard.count} claims</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">🎡 Spin & Win</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.spinWheel.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.spinWheel.count} spins</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">🎁 Daily Bonus</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.dailyBonus.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.dailyBonus.count} days</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">🔢 Captcha</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            {userDetails.earningBreakdown.sources.captcha.coins.toLocaleString('en-IN')} coins
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.sources.captcha.count} solved</p>
+                        </div>
+
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="text-gray-500 font-medium">💸 Total Withdrawn</span>
+                          <p className="font-bold text-gray-900 text-sm mt-0.5">
+                            ₹{userDetails.earningBreakdown.totalWithdrawn.toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-[11px] text-gray-500">{userDetails.earningBreakdown.withdrawalsSummary.approved} payouts</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Transactions */}
+                    {userDetails.earningBreakdown.recentTransactions.length > 0 && (
+                      <div>
+                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Recent Transactions Ledger:</h5>
+                        <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
+                          <table className="min-w-full divide-y divide-gray-200 text-xs">
+                            <thead className="bg-gray-50 sticky top-0">
+                              <tr>
+                                <th className="px-3 py-2 text-left font-medium text-gray-500">Source</th>
+                                <th className="px-3 py-2 text-left font-medium text-gray-500">Coins</th>
+                                <th className="px-3 py-2 text-left font-medium text-gray-500">Description</th>
+                                <th className="px-3 py-2 text-left font-medium text-gray-500">Date</th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                              {userDetails.earningBreakdown.recentTransactions.map((tx) => (
+                                <tr key={tx.id} className="hover:bg-gray-50">
+                                  <td className="px-3 py-1.5 font-medium text-gray-800">{tx.source}</td>
+                                  <td className="px-3 py-1.5 font-bold text-emerald-600">+{tx.coins}</td>
+                                  <td className="px-3 py-1.5 text-gray-500 truncate max-w-xs">{tx.description}</td>
+                                  <td className="px-3 py-1.5 text-gray-400 whitespace-nowrap">{formatDate(tx.date)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Financial Information */}
                 <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">

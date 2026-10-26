@@ -44,6 +44,9 @@ const PopupMessageSettings = () => {
       Title: data.Title ?? '',
       Description: mergedPopupDescription(data),
       IsActive: data.IsActive !== false,
+      MinRequiredBuildNumber: data.MinRequiredBuildNumber ?? 0,
+      LatestVersion: data.LatestVersion ?? '3.0.4',
+      ForceUpdate: data.ForceUpdate === true,
     });
   }, []);
 
