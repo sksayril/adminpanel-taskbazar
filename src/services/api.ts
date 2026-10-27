@@ -366,15 +366,32 @@ export interface WithdrawalRequest {
   updatedAt: string;
 }
 
+export interface WithdrawalPagination {
+  currentPage: number;
+  totalPages: number;
+  totalRequests: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 export interface WithdrawalRequestsResponse {
   message: string;
   data: {
     requests: WithdrawalRequest[];
+    pagination?: WithdrawalPagination;
     totalRequests: number;
     pendingCount: number;
     approvedCount: number;
     rejectedCount: number;
   };
+}
+
+export interface GetWithdrawalRequestsParams {
+  status?: 'Pending' | 'Approved' | 'Rejected';
+  page?: number;
+  limit?: number;
+  search?: string;
 }
 
 export interface UpdateWithdrawalStatusRequest {
@@ -396,10 +413,25 @@ export interface UpdateWithdrawalStatusResponse {
 }
 
 // Get Withdrawal Requests API
-export const getWithdrawalRequests = async (status?: 'Pending' | 'Approved' | 'Rejected'): Promise<WithdrawalRequestsResponse> => {
-  const url = status
-    ? `${BASE_URL}/withdrawal/requests?status=${status}`
-    : `${BASE_URL}/withdrawal/requests`;
+export const getWithdrawalRequests = async (
+  params?: GetWithdrawalRequestsParams | 'Pending' | 'Approved' | 'Rejected'
+): Promise<WithdrawalRequestsResponse> => {
+  let url = `${BASE_URL}/withdrawal/requests`;
+  const queryParams = new URLSearchParams();
+
+  if (typeof params === 'string') {
+    queryParams.append('status', params);
+  } else if (params) {
+    if (params.status) queryParams.append('status', params.status);
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.search && params.search.trim()) queryParams.append('search', params.search.trim());
+  }
+
+  const queryString = queryParams.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
 
   const response = await fetch(url, {
     method: 'GET',

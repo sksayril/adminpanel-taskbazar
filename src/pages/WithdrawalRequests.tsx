@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, CheckCircle2, XCircle, Clock, Filter, Search, AlertCircle, Eye, X, Copy, User, Award, ShieldCheck, QrCode } from 'lucide-react';
+import { DollarSign, CheckCircle2, XCircle, Clock, Filter, Search, AlertCircle, Eye, X, Copy, User, Award, ShieldCheck, QrCode, ChevronLeft, ChevronRight } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import {
@@ -26,6 +26,17 @@ const WithdrawalRequests = () => {
   const [selectedRequestIds, setSelectedRequestIds] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalRequests: 0,
+    limit: 20,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [stats, setStats] = useState({
     totalRequests: 0,
@@ -40,14 +51,20 @@ const WithdrawalRequests = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, [statusFilter]);
+  }, [statusFilter, currentPage, limit]);
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (targetPage?: number) => {
     setFetching(true);
     setError('');
     try {
+      const pageToFetch = targetPage ?? currentPage;
       const filter = statusFilter === 'All' ? undefined : statusFilter;
-      const response = await getWithdrawalRequests(filter);
+      const response = await getWithdrawalRequests({
+        status: filter,
+        page: pageToFetch,
+        limit,
+        search: searchTerm.trim() || undefined,
+      });
       setRequests(response.data.requests);
       setSelectedRequestIds([]);
       setStats({
@@ -56,10 +73,33 @@ const WithdrawalRequests = () => {
         approvedCount: response.data.approvedCount,
         rejectedCount: response.data.rejectedCount,
       });
+      if (response.data.pagination) {
+        setPagination(response.data.pagination);
+      } else {
+        setPagination({
+          currentPage: pageToFetch,
+          totalPages: 1,
+          totalRequests: response.data.requests.length,
+          limit,
+          hasNextPage: false,
+          hasPrevPage: false,
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load withdrawal requests');
     } finally {
       setFetching(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchRequests(1);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
@@ -70,7 +110,7 @@ const WithdrawalRequests = () => {
   };
 
   const toggleSelectAllVisible = () => {
-    const visibleIds = filteredRequests.map((request) => request.requestId);
+    const visibleIds = requests.map((request) => request.requestId);
     const allSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedRequestIds.includes(id));
     setSelectedRequestIds(allSelected ? [] : visibleIds);
   };
@@ -152,19 +192,7 @@ const WithdrawalRequests = () => {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
-  const filteredRequests = requests.filter((request) => {
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        request.userMobileNumber.toLowerCase().includes(searchLower) ||
-        request.userId.toLowerCase().includes(searchLower) ||
-        request.requestId.toLowerCase().includes(searchLower) ||
-        (request.upiId && request.upiId.toLowerCase().includes(searchLower)) ||
-        (request.bankAccountNumber && request.bankAccountNumber.includes(searchTerm))
-      );
-    }
-    return true;
-  });
+
 
   const getStatusBadge = (status: string) => {
     const baseClasses = 'px-3 py-1 rounded-full text-xs font-semibold';
@@ -257,23 +285,33 @@ const WithdrawalRequests = () => {
 
           {/* Filters and Search */}
           <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200 mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-1 relative w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"
                   placeholder="Search by mobile, user ID, UPI ID, or account number..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onKeyDown={handleKeyPress}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <button
+                onClick={handleSearch}
+                className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm"
+              >
+                Search
+              </button>
+              <div className="flex items-center gap-2 w-full md:w-auto">
                 <Filter className="text-gray-400" size={20} />
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value as any);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full md:w-auto px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 >
                   <option value="All">All Status</option>
                   <option value="Pending">Pending</option>
@@ -281,6 +319,19 @@ const WithdrawalRequests = () => {
                   <option value="Rejected">Rejected</option>
                 </select>
               </div>
+              <select
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full md:w-auto px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              >
+                <option value="10">10 per page</option>
+                <option value="20">20 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+              </select>
             </div>
           </div>
 
@@ -319,13 +370,14 @@ const WithdrawalRequests = () => {
                 <Clock className="animate-spin text-blue-600 mx-auto mb-4" size={32} />
                 <p className="text-gray-500">Loading withdrawal requests...</p>
               </div>
-            ) : filteredRequests.length === 0 ? (
+            ) : requests.length === 0 ? (
               <div className="p-12 text-center">
                 <DollarSign className="text-gray-300 mx-auto mb-4" size={48} />
                 <p className="text-gray-500">No withdrawal requests found</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+                <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
@@ -333,8 +385,8 @@ const WithdrawalRequests = () => {
                         <input
                           type="checkbox"
                           checked={
-                            filteredRequests.length > 0 &&
-                            filteredRequests.every((request) => selectedRequestIds.includes(request.requestId))
+                            requests.length > 0 &&
+                            requests.every((request) => selectedRequestIds.includes(request.requestId))
                           }
                           onChange={toggleSelectAllVisible}
                         />
@@ -363,7 +415,7 @@ const WithdrawalRequests = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredRequests.map((request) => (
+                    {requests.map((request) => (
                       <tr key={request.requestId} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <input
@@ -453,6 +505,65 @@ const WithdrawalRequests = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
+                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-sm text-gray-600">
+                    Showing <span className="font-semibold">{((currentPage - 1) * limit) + 1}</span> to{' '}
+                    <span className="font-semibold">
+                      {Math.min(currentPage * limit, pagination.totalRequests)}
+                    </span>{' '}
+                    of <span className="font-semibold">{pagination.totalRequests.toLocaleString('en-IN')}</span> requests
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={!pagination.hasPrevPage}
+                      className="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Previous Page"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                              currentPage === pageNum
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={!pagination.hasNextPage}
+                      className="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Next Page"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
             )}
           </div>
         </div>
