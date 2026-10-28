@@ -18,7 +18,18 @@ const DEFAULT_TASKS: AdsTaskType[] = [
   'ScratchCard',
   'ScratchCardDailyLimit',
   'AppInstall',
+  'PlayGame',
 ];
+
+const TASK_DISPLAY_NAMES: Record<AdsTaskType, string> = {
+  Quiz: 'Quiz (Math Quiz)',
+  Captcha: 'Captcha Entry',
+  DailySpin: 'Daily Spin Wheel',
+  ScratchCard: 'Scratch Card',
+  ScratchCardDailyLimit: 'New Scratch Card',
+  AppInstall: 'App Install',
+  PlayGame: 'Tic-Tac-Toe (Play Game)',
+};
 
 const defaultTaskRule = (taskType: AdsTaskType): AdsTaskRule => ({
   TaskType: taskType,
@@ -242,7 +253,10 @@ const AdsSettings = () => {
               {normalizedTaskRules.map((rule) => (
                 <div key={rule.TaskType} className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-lg font-bold text-gray-800">{rule.TaskType}</h3>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800">{TASK_DISPLAY_NAMES[rule.TaskType] || rule.TaskType}</h3>
+                      <span className="text-xs text-gray-400 font-mono">key: {rule.TaskType}</span>
+                    </div>
                     <span className="text-xs font-semibold px-2 py-1 rounded-full bg-orange-100 text-orange-700">
                       Task Rule
                     </span>
@@ -318,7 +332,7 @@ const AdsSettings = () => {
                     ) : (
                       <Save size={16} />
                     )}
-                    Save {rule.TaskType} Settings
+                    Save {TASK_DISPLAY_NAMES[rule.TaskType] || rule.TaskType} Settings
                   </button>
                 </div>
               ))}

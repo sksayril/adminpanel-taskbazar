@@ -1064,7 +1064,8 @@ export type TaskControlType =
   | 'DailySpin'
   | 'ScratchCardDailyLimit'
   | 'AppInstall'
-  | 'Quiz';
+  | 'Quiz'
+  | 'PlayGame';
 
 export interface TaskControl {
   _id?: string;
@@ -1108,6 +1109,7 @@ export const TASK_CONTROL_TYPE_ORDER: TaskControlType[] = [
   'DailySpin',
   'ScratchCardDailyLimit',
   'AppInstall',
+  'PlayGame',
 ];
 
 const taskControlTypeFromRow = (row: unknown): TaskControlType | null => {
@@ -2018,7 +2020,7 @@ export const updateSupportLink = async (data: UpdateSupportLinkRequest): Promise
 };
 
 // Ads Settings Interfaces
-export type AdsTaskType = 'Quiz' | 'Captcha' | 'DailySpin' | 'ScratchCard' | 'ScratchCardDailyLimit' | 'AppInstall';
+export type AdsTaskType = 'Quiz' | 'Captcha' | 'DailySpin' | 'ScratchCard' | 'ScratchCardDailyLimit' | 'AppInstall' | 'PlayGame';
 
 export interface AdsTaskRule {
   TaskType: AdsTaskType;
