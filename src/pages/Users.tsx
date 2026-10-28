@@ -81,8 +81,10 @@ const Users = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return '—';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '—';
     return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -442,7 +444,7 @@ const Users = () => {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{formatDate(user.createdAt)}</div>
+                            <div className="text-sm text-gray-500">{formatDate(user.createdAt || (user as any).signupTime)}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button
