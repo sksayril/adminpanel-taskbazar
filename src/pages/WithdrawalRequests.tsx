@@ -860,6 +860,63 @@ const WithdrawalRequests = () => {
                     )}
                   </div>
                 )}
+
+                {/* User Uploaded Payment QR Code */}
+                {(selectedRequest.qrCodeImage || selectedRequest.paymentProof) ? (
+                  <div className="mt-5 pt-5 border-t border-gray-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                        <QrCode size={18} className="text-purple-600" />
+                        User Uploaded QR Code
+                      </p>
+                      <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        Scan & Pay
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl border border-purple-200 shadow-sm">
+                      <img
+                        src={selectedRequest.qrCodeImage || selectedRequest.paymentProof || ''}
+                        alt="User Payment QR Code"
+                        className="w-44 h-44 object-contain rounded-lg border border-gray-200 cursor-pointer shadow-sm hover:scale-105 transition-transform bg-white"
+                        onClick={() => setPreviewImage(selectedRequest.qrCodeImage || selectedRequest.paymentProof || '')}
+                      />
+                      <div className="space-y-2 text-center sm:text-left">
+                        <p className="text-sm font-bold text-gray-900">Scan QR Code to Complete Payment</p>
+                        <p className="text-xs text-gray-600 max-w-sm">
+                          Use PhonePe, Google Pay, Paytm, or any UPI app to scan this user-uploaded QR code and pay ₹{selectedRequest.amount}.
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImage(selectedRequest.qrCodeImage || selectedRequest.paymentProof || '')}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                          >
+                            <Eye size={14} /> View Full QR
+                          </button>
+                          <a
+                            href={selectedRequest.qrCodeImage || selectedRequest.paymentProof || ''}
+                            download={`qr_${selectedRequest.userMobileNumber || 'user'}_${selectedRequest.amount}.jpg`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold border border-gray-300 transition-colors"
+                          >
+                            Download QR Image
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  selectedRequest.upiId === 'QR Payment' && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                        <AlertCircle size={16} className="text-amber-600 flex-shrink-0" />
+                        <span>User selected QR Payment, but no QR code image was stored for this past request.</span>
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
 
               {/* Admin Notes */}
